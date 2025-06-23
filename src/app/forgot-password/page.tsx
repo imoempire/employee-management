@@ -107,14 +107,14 @@ export default function Page() {
           ) : (
             <div className="w-full max-w-md space-y-6">
               {/* Title */}
-              <Group gap={0} justify="center">
+              <div className="flex flex-col items-center">
                 <Title order={2} c={"#1e2939"} fw={"700"} size={"xl"}>
                   Forgot Password?
                 </Title>
                 <Text size="sm" ta="center" c={"dimmed"}>
                   No worries, will send your reset instructions.
                 </Text>
-              </Group>
+              </div>
 
               {!!error && (
                 <Text c="red" ta="center">
