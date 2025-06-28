@@ -2,7 +2,7 @@ export type SegmentValues =
   | "Welcome Message"
   | "Vision, Mission & Values"
   | "Policies"
-  | "Code of Conduct"
+  // | "Code of Conduct"
   | "Organizational Structure";
 
 export type NextSegementValue = SegmentValues | null;

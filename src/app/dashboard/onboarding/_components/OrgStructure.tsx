@@ -73,20 +73,20 @@ export default function OrgStructure({
   NextSegement: (value: NextSegementValue) => void;
 }) {
   const VisionMissions: { title: string; description: string }[] = [
-    {
-      title: "Executive Leadership",
-      description:
-        "Our company is led by an executive team with decades of combined experience in the industry. The leadership team includes the CEO, CTO, CFO, and department heads who collaborate to guide our strategic direction.",
-    },
-    {
-      title: "Key Departments",
-      description: "",
-    },
-    {
-      title: "Team Structure",
-      description:
-        "We operate in a relatively flat organization with cross-functional teams. This approach encourages collaboration, innovation, and quick decision-making. Most teams include members from various disciplines to ensure diverse perspectives.",
-    },
+    // {
+    //   title: "Executive Leadership",
+    //   description:
+    //     "Our company is led by an executive team with decades of combined experience in the industry. The leadership team includes the CEO, CTO, CFO, and department heads who collaborate to guide our strategic direction.",
+    // },
+    // {
+    //   title: "Key Departments",
+    //   description: "",
+    // },
+    // {
+    //   title: "Team Structure",
+    //   description:
+    //     "We operate in a relatively flat organization with cross-functional teams. This approach encourages collaboration, innovation, and quick decision-making. Most teams include members from various disciplines to ensure diverse perspectives.",
+    // },
   ];
 
   const handleSubmit = async () => {

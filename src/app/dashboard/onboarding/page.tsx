@@ -22,9 +22,9 @@ import { useCustomGet } from "@/Hooks/useCustomGet";
 import { API_ENDPOINT } from "@/service/api/endpoints";
 import { useSession } from "next-auth/react";
 import { calculateCompletionPercentage } from "@/Hooks/Helper";
-import CodeConduct from "./_components/CodeConduct";
+// import CodeConduct from "./_components/CodeConduct";
 import VisionMission from "./_components/VisionMission";
-import CompanyProfile from "./_components/Policies";
+import CompanyPolicies from "./_components/Policies";
 import Welcome from "./_components/Welcome";
 import OrgStructure from "./_components/OrgStructure";
 import Loading from "@/components/loading";
@@ -45,8 +45,8 @@ export default function Page() {
   const Tabs: Record<SegmentValues, JSX.Element> = {
     "Welcome Message": <Welcome NextSegement={NextSegement} />,
     "Vision, Mission & Values": <VisionMission NextSegement={NextSegement} />,
-    Policies: <CompanyProfile NextSegement={NextSegement} />,
-    "Code of Conduct": <CodeConduct NextSegement={NextSegement} />,
+    Policies: <CompanyPolicies NextSegement={NextSegement} />,
+    // "Code of Conduct": <CodeConduct NextSegement={NextSegement} />,
     "Organizational Structure": <OrgStructure NextSegement={NextSegement} />,
   };
 
@@ -84,16 +84,16 @@ export default function Page() {
       ),
       value: "Policies",
     },
-    {
-      label: (
-        <Center style={{ gap: 6 }}>
-          <IconShield size={16} />
-          <span className="hidden sm:inline">Code of Conduct</span>
-          <span className="sm:hidden text-xs">Code</span>
-        </Center>
-      ),
-      value: "Code of Conduct",
-    },
+    // {
+    //   label: (
+    //     <Center style={{ gap: 6 }}>
+    //       <IconShield size={16} />
+    //       <span className="hidden sm:inline">Code of Conduct</span>
+    //       <span className="sm:hidden text-xs">Code</span>
+    //     </Center>
+    //   ),
+    //   value: "Code of Conduct",
+    // },
     {
       label: (
         <Center style={{ gap: 6 }}>

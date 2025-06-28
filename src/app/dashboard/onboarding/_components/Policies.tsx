@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Button, Group, Text, Title } from "@mantine/core";
-import { IconCheck, IconPointFilled, IconX } from "@tabler/icons-react";
-import Link from "next/link";
+import {
+  IconCheck,
+  IconPointFilled,
+  IconX,
+  IconFileText,
+} from "@tabler/icons-react";
+import { Modal, Paper, Text, Title, Button, Group } from "@mantine/core";
 import { NextSegementValue } from "./types";
 import { showNotification } from "@mantine/notifications";
 import { useCustomPost } from "@/Hooks/useCustomPost";
@@ -10,32 +14,36 @@ import { useSession } from "next-auth/react";
 import { API_ENDPOINT } from "@/service/api/endpoints";
 import { useCustomGet } from "@/Hooks/useCustomGet";
 import { isDocumentAccepted } from "@/Hooks/Helper";
+import { useDisclosure } from "@mantine/hooks";
+import Link from "next/link";
 
-const InfoSession = ({
-  // title,
-  description,
-}: {
-  title?: string;
-  description: string;
-}) => {
-  return (
-    <div>
-      <Title order={4} mb={"md"}>
-        {/* {title} */}
-      </Title>
-      <Text mt={"sm"} size="md">
-        {description}
-      </Text>
-    </div>
-  );
-};
+// const InfoSession = ({
+//   // title,
+//   description,
+// }: {
+//   title?: string;
+//   description: string;
+// }) => {
+//   return (
+//     <div>
+//       <Title order={4} mb={"md"}>
+//         {/* {title} */}
+//       </Title>
+//       <Text mt={"sm"} size="md">
+//         {description}
+//       </Text>
+//     </div>
+//   );
+// };
 
 const DATA = [
   {
-    description: "Drones become guardians, soaring over our local homes & remote areas, ensuring your safety.",
+    description:
+      "Drones become guardians, soaring over our local homes & remote areas, ensuring your safety.",
   },
   {
-    description: "Fields bloom with precision agriculture, banishing hunger with data-driven harvests.",
+    description:
+      "Fields bloom with precision agriculture, banishing hunger with data-driven harvests.",
   },
   // {
   //   description: "Industry-leading customer satisfaction ratings",
@@ -71,6 +79,7 @@ const AchieveSession = ({ title }: { title?: string }) => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ListItems = ({ title }: { title?: string }) => {
   return (
     <div>
@@ -93,69 +102,79 @@ const ListItems = ({ title }: { title?: string }) => {
   );
 };
 
-export default function CompanyProfile({
+const PolicyCard = ({
+  item,
+  onViewPdf,
+}: {
+  item: {
+    title: string;
+    description: string;
+    icon: any;
+  };
+  onViewPdf: () => void;
+}) => {
+  return (
+    <Paper
+      shadow="0"
+      py="xl"
+      px="md"
+      style={{ cursor: "pointer", width: "100%" }}
+      withBorder
+      radius="sm"
+      onClick={onViewPdf}
+    >
+      <div className="flex gap-x-2.5 items-center">
+        {item.icon}
+        <Text>{item.title}</Text>
+      </div>
+    </Paper>
+  );
+};
+
+export default function CompanyPolicies({
   NextSegement,
 }: {
   NextSegement: (value: NextSegementValue) => void;
 }) {
-  const VisionMissions: {
+  const Policies: {
     title: string;
     description: string;
-    type: "para" | "list";
+    icon: any;
+    // type: "para" | "list";
   }[] = [
     {
-      title: "",
+      title: "Policy Management Framework",
       description: "Africa Drone Kings: Bridging the Gap, One Sky at a Time",
-      type: "para",
+      icon: <IconFileText />,
+      // type: "para",
     },
     {
-      title: "",
+      title: "Policy Register",
       description:
         "2018: We looked across the chasm, a vast divide separating Africa from the cutting-edge solutions of the 5th Industrial Revolution. Drones whizzed through first-world skies, while here, access, infrastructure, and even perspectives on technology held us back. Hunger gnawed at fields, public safety hung in the balance, and surveying remained an antiquated dance with theodolites.",
-      type: "para",
+      icon: <IconFileText />,
+      // type: "para",
     },
     {
-      title: "",
+      title: "Code of Conduct",
       description:
         "That's where we stepped in, not as tech vendors, but as problem-solvers. Africa Drone Kings wasn't born from a love of gadgets only, but a burning desire to bridge that gap. We didn't just offer drones; we built a bridge, brick by brick, from consultancy to procurement, training to after-sales support.",
-      type: "para",
+      icon: <IconFileText />,
+      // type: "para",
     },
     {
-      title: "",
+      title: "Disciplinary Policy",
       description:
         "Our Founding CEO, a visionary leader - Vice Phiri saw the sky not as a limit, but a launchpad. Under his guidance, we've carved breakthroughs in drone technology that could revolutionize African landscapes.",
-      type: "para",
+      icon: <IconFileText />,
+      // type: "para",
     },
     {
-      title: "Imagine a world where:",
+      title: "Dress Code Policy",
       description: "",
-      type: "list",
+      icon: <IconFileText />,
+      // type: "list",
     },
-    {
-      title: "",
-      description:
-        "Ancient landmarks whisper their secrets, revealed by the keen eyes of aerial surveys.",
-      type: "para",
-    },
-    {
-      title: "",
-      description:
-        "We don't just fall in love with solutions; we fall head over heels for the problems themselves. We tinker, we adapt, we push boundaries until our drones become not just machines, but tools for transformation.",
-      type: "para",
-    },
-
-    {
-      title: "",
-      description:
-        "This isn't just about drones; it's about Africa's future taking flight. We're Africa Drone Kings, and we're here to paint the sky with possibilities, one drone, one breakthrough at a time",
-      type: "para",
-    },
-
-    // {
-    //   title: "Global Presence",
-    //   description:
-    //     "With headquarters in San Francisco, we maintain offices in New York, London, Singapore, and Sydney, allowing us to serve clients around the globe.",
-    // },
   ];
 
   // HOOKS
@@ -175,13 +194,28 @@ export default function CompanyProfile({
 
   // STATES
   const [isloading, setisloading] = useState<boolean>(false);
+  const [opened, { open, close }] = useDisclosure(false);
+
+  const [selectedPolicy, setSelectedPolicy] = useState<{
+    title: string;
+    pdfUrl: string;
+  } | null>(null);
+
+  const handleViewPdf = (title: string) => {
+    // Simulate PDF URL based on policy title (replace with your API logic)
+    const pdfUrl = `https://example.com/${title
+      .toLowerCase()
+      .replace(/ /g, "_")}.pdf`;
+    setSelectedPolicy({ title, pdfUrl });
+    open();
+  };
 
   // API
   const POST_ACTION = useCustomPost<any>({
     url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/accept/company_profile`,
     onSuccess: (data: any) => {
       console.log(data, "DATA DAtA");
-      NextSegement("Code of Conduct");
+      NextSegement("Organizational Structure");
       showNotification({
         title: "Success",
         message: data?.message || "Changes saved successfully!",
@@ -192,7 +226,7 @@ export default function CompanyProfile({
     },
     onError: (error: any) => {
       if (error?.data?.message === "Already accepted.") {
-        NextSegement("Code of Conduct");
+        NextSegement("Organizational Structure");
         return;
       }
       showNotification({
@@ -226,39 +260,69 @@ export default function CompanyProfile({
   return (
     <div>
       <div>
-        <Title order={3}>Company Profile</Title>
-        <Text size="sm" c="#64748b" mb={"lg"}>
-          Learn about our company history and achievements
+        <Title order={3}>Company Policies</Title>
+        <Text size="sm" c="#64748b" mb="lg">
+          Important policies and procedures you need to know
         </Text>
       </div>
-      <div className="flex flex-col gap-y-3.5">
-        {VisionMissions?.map((item, index) => (
-          <div key={index}>
-            {item.type == "list" ? (
-              <ListItems title={item.title} />
-            ) : (
-              <InfoSession description={item.description} title={item.title} />
-            )}
+      <div className="grid grid-cols-2 gap-3.5">
+        {Policies.map((item, index) => (
+          <div
+            key={index}
+            className={`${
+              Policies.length % 2 === 1 && index === Policies.length - 1
+                ? "col-span-2"
+                : "col-span-1"
+            }`}
+          >
+            <PolicyCard
+              item={item}
+              onViewPdf={() => handleViewPdf(item.title)}
+            />
           </div>
         ))}
       </div>
       <div className="mt-8">
         {!isDocAccepted && (
           <Group justify="space-between">
-            <Button component={Link} href={"/dashboard"} variant="default">
+            <Button component={Link} href="/dashboard" variant="default">
               Back to Dashboard
             </Button>
             <Button
               onClick={handleSubmit}
               loading={isloading}
               variant="filled"
-              color={"dark"}
+              color="dark"
             >
               Mark as Complete
             </Button>
           </Group>
         )}
       </div>
+      <Modal
+        opened={opened}
+        onClose={() => close()}
+        title={
+          <Text fz={"h2"} fw={"bolder"}>
+            {selectedPolicy?.title || "Policy Document"}
+          </Text>
+        }
+        size="xl"
+        centered
+      >
+        {selectedPolicy && (
+          <iframe
+            src={selectedPolicy.pdfUrl}
+            title="PDF Viewer"
+            style={{ width: "100%", height: "70vh", border: "none" }}
+          />
+        )}
+        <div className="flex py-2.5 justify-end">
+          <Button onClick={close} variant="filled" color="dark">
+            Close
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
