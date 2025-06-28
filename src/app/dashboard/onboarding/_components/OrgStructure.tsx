@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, Group, Paper, Text, Title } from "@mantine/core";
+import { Button, Center, Group,Stack,  Paper, Text, Title } from "@mantine/core";
 import { NextSegementValue } from "./types";
 import Link from "next/link";
+import { IconMoodEmpty } from "@tabler/icons-react";
 
 const InfoSession = ({
   title,
@@ -108,7 +109,13 @@ export default function OrgStructure({
 
   return (
     <div>
-      <div>
+      <Center>
+        <Stack gap={2} align="center" justify="center">
+          <IconMoodEmpty color="gray" />
+          <Text c="dimmed">No data available</Text>
+        </Stack>
+      </Center>
+      <div className="hidden">
         <Title order={3}>Company Profile</Title>
         <Text size="sm" c="#64748b" mb={"lg"}>
           Learn about our company history and achievements
@@ -125,7 +132,7 @@ export default function OrgStructure({
           </div>
         ))}
       </div>
-      <div className="mt-8">
+      <div className="mt-8 hidden">
         <Group justify="space-between">
           <Button component={Link} href={"/dashboard"} variant="default">
             Back to Dashboard
