@@ -13,4 +13,7 @@ export const API_ENDPOINT = {
   // DASHBOARD
   EMPLOYEE: "/employee",
 
+  // ADMIN
+  ADMIN: "admin"
+
 };

@@ -5,9 +5,12 @@ import {
   IconPointFilled,
   IconX,
   IconFileText,
+  IconShield,
+  IconShirt,
+  IconGavel,
 } from "@tabler/icons-react";
 import { Modal, Paper, Text, Title, Button, Group } from "@mantine/core";
-import { NextSegementValue } from "./types";
+import { NextSegementValue, PolicesResponse, PolicyDocument } from "./types";
 import { showNotification } from "@mantine/notifications";
 import { useCustomPost } from "@/Hooks/useCustomPost";
 import { useSession } from "next-auth/react";
@@ -106,13 +109,17 @@ const PolicyCard = ({
   item,
   onViewPdf,
 }: {
-  item: {
-    title: string;
-    description: string;
-    icon: any;
-  };
+  item: PolicyDocument;
   onViewPdf: () => void;
 }) => {
+  const PoliciesIcons: Record<string, any> = {
+    "policy management framework": <IconFileText />,
+    "policy register": <IconFileText />,
+    "code of conduct": <IconShield />,
+    "disciplinary policy": <IconGavel />,
+    "dress code policy": <IconShirt />,
+  };
+
   return (
     <Paper
       shadow="0"
@@ -124,8 +131,8 @@ const PolicyCard = ({
       onClick={onViewPdf}
     >
       <div className="flex gap-x-2.5 items-center">
-        {item.icon}
-        <Text>{item.title}</Text>
+        {PoliciesIcons[item?.title?.toLowerCase()]}
+        <Text>{item?.title}</Text>
       </div>
     </Paper>
   );
@@ -136,51 +143,14 @@ export default function CompanyPolicies({
 }: {
   NextSegement: (value: NextSegementValue) => void;
 }) {
-  const Policies: {
-    title: string;
-    description: string;
-    icon: any;
-    // type: "para" | "list";
-  }[] = [
-    {
-      title: "Policy Management Framework",
-      description: "Africa Drone Kings: Bridging the Gap, One Sky at a Time",
-      icon: <IconFileText />,
-      // type: "para",
-    },
-    {
-      title: "Policy Register",
-      description:
-        "2018: We looked across the chasm, a vast divide separating Africa from the cutting-edge solutions of the 5th Industrial Revolution. Drones whizzed through first-world skies, while here, access, infrastructure, and even perspectives on technology held us back. Hunger gnawed at fields, public safety hung in the balance, and surveying remained an antiquated dance with theodolites.",
-      icon: <IconFileText />,
-      // type: "para",
-    },
-    {
-      title: "Code of Conduct",
-      description:
-        "That's where we stepped in, not as tech vendors, but as problem-solvers. Africa Drone Kings wasn't born from a love of gadgets only, but a burning desire to bridge that gap. We didn't just offer drones; we built a bridge, brick by brick, from consultancy to procurement, training to after-sales support.",
-      icon: <IconFileText />,
-      // type: "para",
-    },
-    {
-      title: "Disciplinary Policy",
-      description:
-        "Our Founding CEO, a visionary leader - Vice Phiri saw the sky not as a limit, but a launchpad. Under his guidance, we've carved breakthroughs in drone technology that could revolutionize African landscapes.",
-      icon: <IconFileText />,
-      // type: "para",
-    },
-    {
-      title: "Dress Code Policy",
-      description: "",
-      icon: <IconFileText />,
-      // type: "list",
-    },
-  ];
-
   // HOOKS
   const { data } = useSession();
 
   // API
+  const { data: CompanyPolicies } = useCustomGet<PolicesResponse>({
+    url: `${API_ENDPOINT.ADMIN}/policy-document/list`,
+  });
+
   const { data: onboarding } = useCustomGet<any>({
     url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/accepted-documents`,
   });
@@ -201,12 +171,8 @@ export default function CompanyPolicies({
     pdfUrl: string;
   } | null>(null);
 
-  const handleViewPdf = (title: string) => {
-    // Simulate PDF URL based on policy title (replace with your API logic)
-    const pdfUrl = `https://example.com/${title
-      .toLowerCase()
-      .replace(/ /g, "_")}.pdf`;
-    setSelectedPolicy({ title, pdfUrl });
+  const handleViewPdf = (title: string, file_url: string) => {
+    setSelectedPolicy({ title, pdfUrl: file_url });
     open();
   };
 
@@ -266,18 +232,19 @@ export default function CompanyPolicies({
         </Text>
       </div>
       <div className="grid grid-cols-2 gap-3.5">
-        {Policies.map((item, index) => (
+        {CompanyPolicies?.documents?.map((item, index) => (
           <div
-            key={index}
+            key={item.id}
             className={`${
-              Policies.length % 2 === 1 && index === Policies.length - 1
+              CompanyPolicies?.documents.length % 2 === 1 &&
+              index === CompanyPolicies?.documents?.length - 1
                 ? "col-span-2"
                 : "col-span-1"
             }`}
           >
             <PolicyCard
               item={item}
-              onViewPdf={() => handleViewPdf(item.title)}
+              onViewPdf={() => handleViewPdf(item.title, item?.file_url)}
             />
           </div>
         ))}
