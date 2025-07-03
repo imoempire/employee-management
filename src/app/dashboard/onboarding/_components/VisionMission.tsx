@@ -32,30 +32,42 @@ const VisionSession = ({
   );
 };
 
+// Performance : Winner's win
+
+// Adaptability : How Can I?
+
+// Candour : Real G Conversations
+
+// Teamwork : Ubuntu, I am because you are
+
+// Learning and Growing : Shoshin - "Beginner's Mind"
+
+// Passion : Passionate people produce- I see you!
+
 const DATA = [
   {
     title: "PERFORMANCE",
-    description: "",
+    description: "Winner's win",
   },
   {
     title: "ADAPTABILITY",
-    description: "",
+    description: "How Can I?",
   },
   {
     title: "CANDOUR",
-    description: "",
+    description: "Real G Conversations",
   },
   {
     title: "TEAMWORK",
-    description: "",
+    description: "Ubuntu, I am because you are",
   },
   {
     title: "GROWTH",
-    description: "",
+    description: "Shoshin - `Beginner's Mind` ",
   },
   {
     title: "PASSION",
-    description: "",
+    description: "Passionate people produce- I see you!",
   },
 ];
 
@@ -73,7 +85,7 @@ const CoreSession = ({ title }: { title: string }) => {
               <Text ml={"xs"} fw={"bold"} c={"#1e2939"}>
                 {item.title}
               </Text>
-              :<Text> {item.description}</Text>
+              : <Text ml={"xs"}> {item.description}</Text>
             </div>
           );
         })}
@@ -169,7 +181,9 @@ export default function VisionMission({
   return (
     <div>
       <div>
-        <Title order={3} c={"#1e2939"}>Vision & Mission</Title>
+        <Title order={3} c={"#1e2939"}>
+          Vision & Mission
+        </Title>
         <Text size="sm" c="#64748b" mb={"lg"}>
           Our company&apos;s purpose and future direction
         </Text>

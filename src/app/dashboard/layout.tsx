@@ -1,22 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
-import { AppShell, Burger, Group, Text, Menu } from "@mantine/core";
+import {
+  AppShell,
+  Burger,
+  Group,
+  Text,
+  Menu,
+  Image,
+  Avatar,
+  Container,
+  Box,
+  Flex,
+} from "@mantine/core";
 import Link from "next/link";
 import {
   IconBell,
   IconSettings,
   IconLogout,
-  IconUserCircle,
   IconChevronDown,
+  IconUserCircle,
+  IconCalendar,
+  IconFiles,
 } from "@tabler/icons-react";
 import { getSession, signOut, useSession } from "next-auth/react";
-import { redirect, usePathname } from "next/navigation"; // Import usePathname
+import { redirect, usePathname } from "next/navigation";
 import Loading from "@/components/loading";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const [mobileMenuOpened, setMobileMenuOpened] = useState(false);
-  const pathname = usePathname(); // Get current URL path
+  const pathname = usePathname();
 
   useEffect(() => {
     getSession();
@@ -69,6 +83,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     },
   ];
 
+  const userMenuItems = [
+    {
+      label: "My Profile",
+      href: "/dashboard/settings/profile",
+      icon: <IconUserCircle size={16} />,
+    },
+    {
+      label: "My Documents",
+      href: "/dashboard/document-management",
+      icon: <IconFiles size={16} />,
+    },
+    {
+      label: "Calendar",
+      href: "/dashboard/calendar",
+      icon: <IconCalendar size={16} />,
+    },
+    {
+      label: "Settings",
+      href: "/dashboard/settings",
+      icon: <IconSettings size={16} />,
+    },
+  ];
+
   const SignOut = async () => {
     await signOut();
   };
@@ -78,231 +115,312 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     pathname.startsWith(link.href)
   );
 
-  return (
-    <AppShell header={{ height: 60 }} padding="xl">
-      <AppShell.Header bg={"#0039C8"}>
-        <Group h="100%" px="md" justify="space-between">
-          <Text hiddenFrom="sm" />
-          {/* Desktop Navigation */}
-          <Group gap="xl" visibleFrom="sm" ml={"100"}>
-            {navLinks.map((link) =>
-              link.isDropdown ? (
-                <Menu key={link.href} position="bottom" offset={10}>
-                  <Menu.Target>
-                    <Group gap="xs" align="center">
-                      <Text
-                        size="md"
-                        fw={500}
-                        style={{
-                          cursor: "pointer",
-                          color: "#ffffff",
-                          textDecoration: isOnboardingActive
-                            ? "underline"
-                            : "none", // Highlight if any onboarding link is active
-                        }}
-                      >
-                        {link.label}
-                      </Text>
-                      <IconChevronDown
-                        color="#ffffff"
-                        size={16}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </Group>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    {onboardingLinks.map((onboardingLink) => (
-                      <Menu.Item
-                        key={onboardingLink.href}
-                        component={Link}
-                        href={onboardingLink.href}
-                        style={{
-                          backgroundColor:
-                            pathname === onboardingLink.href
-                              ? "#e0e0e0"
-                              : "transparent", // Highlight active sub-link
-                        }}
-                      >
-                        {onboardingLink.label}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Dropdown>
-                </Menu>
-              ) : (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    textDecoration: "none",
-                    color: "#ffffff",
-                  }}
-                >
-                  <Text
-                    size="md"
-                    fw={500}
-                    style={{
-                      cursor: "pointer",
-                      textDecoration:
-                        pathname === link.href ? "underline" : "none", // Highlight active link
-                    }}
-                  >
-                    {link.label}
-                  </Text>
-                </Link>
-              )
-            )}
-          </Group>
+  // Logo component for reusability
+  const Logo = ({ size = 30 }: { size?: number }) => (
+    <Link
+      href="/dashboard"
+      style={{
+        textDecoration: "none",
+        display: "flex",
+        alignItems: "center",
+      }}
+    >
+      <Image src="/ADK_LOGO.png" alt="ADK Logo" h={size} />
+    </Link>
+  );
 
-          {/* Desktop Icons */}
-          <Group gap="lg" visibleFrom="sm">
-            <IconBell color="#ffffff" size={25} style={{ cursor: "pointer" }} />
-            <Menu>
-              <Menu.Target>
-                <IconSettings
-                  color="#ffffff"
-                  size={25}
-                  style={{ cursor: "pointer" }}
-                />
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={<IconSettings size={25} />}
-                  component={Link}
-                  href="/dashboard/settings"
-                  style={{
-                    backgroundColor:
-                      pathname === "/dashboard/settings"
-                        ? "#e0e0e0"
-                        : "transparent",
-                  }}
-                >
-                  Settings
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconUserCircle size={25} />}
-                  component={Link}
-                  href="/dashboard/settings/profile"
-                  style={{
-                    backgroundColor:
-                      pathname === "/dashboard/settings/profile"
-                        ? "#e0e0e0"
-                        : "transparent",
-                  }}
-                >
-                  Profile
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-            <div onClick={SignOut}>
-              <IconLogout color="#ffffff" size={25} />
-            </div>
-          </Group>
-
-          {/* Mobile Burger with Menu */}
-          <Menu
-            opened={mobileMenuOpened}
-            onChange={setMobileMenuOpened}
-            position="bottom-end"
-            offset={10}
-            withinPortal
-          >
-            <Menu.Target>
-              <Burger
-                opened={mobileMenuOpened}
-                onClick={() => setMobileMenuOpened((o) => !o)}
-                size="sm"
-                hiddenFrom="sm"
-                color="#ffffff"
-              />
-            </Menu.Target>
-            <Menu.Dropdown>
-              {navLinks.map((link) =>
-                link.isDropdown ? (
-                  <Menu.Sub key={link.href}>
-                    <Menu.Sub.Target>
-                      <Menu.Sub.Item
-                        style={{
-                          backgroundColor: isOnboardingActive
-                            ? "#e0e0e0"
-                            : "transparent", // Highlight if any onboarding link is active
-                        }}
-                      >
-                        {link.label}
-                      </Menu.Sub.Item>
-                    </Menu.Sub.Target>
-
-                    <Menu.Sub.Dropdown>
-                      {onboardingLinks.map((onboardingLink) => (
-                        <Menu.Item
-                          key={onboardingLink.href}
-                          component={Link}
-                          href={onboardingLink.href}
-                          style={{
-                            backgroundColor:
-                              pathname === onboardingLink.href
-                                ? "#e0e0e0"
-                                : "transparent", // Highlight active sub-link
-                          }}
-                        >
-                          {onboardingLink.label}
-                        </Menu.Item>
-                      ))}
-                    </Menu.Sub.Dropdown>
-                  </Menu.Sub>
-                ) : (
-                  <Menu.Item
-                    key={link.href}
-                    component={Link}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpened(false)}
-                    style={{
-                      backgroundColor:
-                        pathname === link.href ? "#e0e0e0" : "transparent", // Highlight active link
-                    }}
-                  >
-                    {link.label}
-                  </Menu.Item>
-                )
-              )}
-              <Menu.Divider />
-              <Menu.Item
-                leftSection={<IconBell size={16} />}
-                component="button"
-                onClick={() => setMobileMenuOpened(false)}
+  // Navigation link component
+  const NavLink = ({
+    link,
+    isMobile = false,
+  }: {
+    link: any;
+    isMobile?: boolean;
+  }) => {
+    if (link.isDropdown) {
+      return (
+        <Menu key={link.href} position="bottom" offset={10}>
+          <Menu.Target>
+            <Group gap="xs" align="center">
+              <Text
+                size={isMobile ? "sm" : "md"}
+                fw={500}
+                style={{
+                  cursor: "pointer",
+                  color: "#000000",
+                  textDecoration: isOnboardingActive ? "underline" : "none",
+                  textDecorationColor: isOnboardingActive ? "#1483C6" : "none",
+                }}
               >
-                Notifications
-              </Menu.Item>
+                {link.label}
+              </Text>
+              <IconChevronDown
+                color="#000000"
+                size={14}
+                style={{ cursor: "pointer" }}
+              />
+            </Group>
+          </Menu.Target>
+          <Menu.Dropdown>
+            {onboardingLinks.map((onboardingLink) => (
               <Menu.Item
-                leftSection={<IconSettings size={16} />}
+                key={onboardingLink.href}
                 component={Link}
-                href="/dashboard/settings"
-                onClick={() => setMobileMenuOpened(false)}
+                href={onboardingLink.href}
                 style={{
                   backgroundColor:
-                    pathname === "/dashboard/settings"
+                    pathname === onboardingLink.href
                       ? "#e0e0e0"
                       : "transparent",
                 }}
               >
-                Settings
+                {onboardingLink.label}
               </Menu.Item>
-              <Menu.Item
-                leftSection={<IconLogout size={16} />}
-                onClick={() => {
-                  SignOut();
-                  setMobileMenuOpened(false);
-                }}
-              >
-                Logout
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+      );
+    }
+
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        style={{
+          textDecoration: "none",
+          color: pathname === link.href ? "#1483C6" : "#000000",
+        }}
+      >
+        <Text
+          size={isMobile ? "sm" : "md"}
+          fw={500}
+          style={{
+            cursor: "pointer",
+            textDecoration: pathname === link.href ? "underline" : "none",
+            textDecorationColor: pathname === link.href ? "#1483C6" : "none",
+          }}
+        >
+          {link.label}
+        </Text>
+      </Link>
+    );
+  };
+
+  return (
+    <AppShell
+      header={{ height: { base: 60, sm: 70 } }}
+      padding={{ base: "md", sm: "xs" }}
+    >
+      <AppShell.Header
+        bg="#ffffff"
+        style={{ borderBottomColor: "#1483C6", borderBottomWidth: 5 }}
+      >
+        <Container
+          // w={{ base: "100%", sm: "100%" }}
+          size={"100%"}
+          h="100%"
+          px={{ base: "xl", sm: "100" }}
+        >
+          <Flex justify="space-between" align="center" h="100%">
+            {/* Mobile Logo (smaller) */}
+            <Box hiddenFrom="sm">
+              <Logo size={28} />
+            </Box>
+
+            {/* Desktop Navigation with Logo */}
+            <Group gap="xl" visibleFrom="lg">
+              <Logo size={35} />
+              {navLinks.map((link) => (
+                <NavLink key={link.href} link={link} />
+              ))}
+            </Group>
+
+            {/* Tablet Navigation (condensed) with Logo */}
+            <Group gap="md" visibleFrom="sm" hiddenFrom="lg">
+              <Logo size={32} />
+              {navLinks.slice(0, 3).map((link) => (
+                <NavLink key={link.href} link={link} />
+              ))}
+              <Menu>
+                <Menu.Target>
+                  <Group gap="xs">
+                    <Text size="sm" fw={500} style={{ cursor: "pointer" }}>
+                      More
+                    </Text>
+                    <IconChevronDown size={14} style={{ cursor: "pointer" }} />
+                  </Group>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {navLinks.slice(3).map((link) => (
+                    <Menu.Item
+                      key={link.href}
+                      component={Link}
+                      href={link.href}
+                      style={{
+                        backgroundColor:
+                          pathname === link.href ? "#e0e0e0" : "transparent",
+                      }}
+                    >
+                      {link.label}
+                    </Menu.Item>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
+
+            {/* Desktop Right Section */}
+            <Group gap="md" visibleFrom="sm">
+              <IconBell
+                color="#000000"
+                size={22}
+                style={{ cursor: "pointer" }}
+              />
+              <Menu>
+                <Menu.Target>
+                  <Group gap={4} style={{ cursor: "pointer" }}>
+                    <Avatar size="sm" name={session.user.username} />
+                    <IconChevronDown color="#000000" size={14} />
+                  </Group>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {userMenuItems.map((item) => (
+                    <Menu.Item
+                      key={item.href}
+                      leftSection={item.icon}
+                      component={Link}
+                      href={item.href}
+                      style={{
+                        backgroundColor:
+                          pathname === item.href ? "#e0e0e0" : "transparent",
+                      }}
+                    >
+                      {item.label}
+                    </Menu.Item>
+                  ))}
+                  <Menu.Divider />
+                  <Menu.Item
+                    leftSection={<IconLogout size={16} />}
+                    onClick={SignOut}
+                  >
+                    Logout
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
+
+            {/* Mobile Burger Menu */}
+            <Menu
+              opened={mobileMenuOpened}
+              onChange={setMobileMenuOpened}
+              position="bottom-end"
+              offset={10}
+              withinPortal
+            >
+              <Menu.Target>
+                <Burger
+                  opened={mobileMenuOpened}
+                  onClick={() => setMobileMenuOpened((o) => !o)}
+                  size="sm"
+                  hiddenFrom="sm"
+                  color="#000000"
+                />
+              </Menu.Target>
+              <Menu.Dropdown>
+                {/* Navigation Links */}
+                {navLinks.map((link) =>
+                  link.isDropdown ? (
+                    <Menu key={link.href} position="right-start" offset={5}>
+                      <Menu.Target>
+                        <Menu.Item
+                          rightSection={<IconChevronDown size={14} />}
+                          style={{
+                            backgroundColor: isOnboardingActive
+                              ? "#e0e0e0"
+                              : "transparent",
+                          }}
+                        >
+                          {link.label}
+                        </Menu.Item>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        {onboardingLinks.map((onboardingLink) => (
+                          <Menu.Item
+                            key={onboardingLink.href}
+                            component={Link}
+                            href={onboardingLink.href}
+                            onClick={() => setMobileMenuOpened(false)}
+                            style={{
+                              backgroundColor:
+                                pathname === onboardingLink.href
+                                  ? "#e0e0e0"
+                                  : "transparent",
+                            }}
+                          >
+                            {onboardingLink.label}
+                          </Menu.Item>
+                        ))}
+                      </Menu.Dropdown>
+                    </Menu>
+                  ) : (
+                    <Menu.Item
+                      key={link.href}
+                      component={Link}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpened(false)}
+                      style={{
+                        backgroundColor:
+                          pathname === link.href ? "#e0e0e0" : "transparent",
+                      }}
+                    >
+                      {link.label}
+                    </Menu.Item>
+                  )
+                )}
+
+                <Menu.Divider />
+
+                {/* User Actions */}
+                <Menu.Item
+                  leftSection={<IconBell size={16} />}
+                  onClick={() => setMobileMenuOpened(false)}
+                >
+                  Notifications
+                </Menu.Item>
+
+                {userMenuItems.map((item) => (
+                  <Menu.Item
+                    key={item.href}
+                    leftSection={item.icon}
+                    component={Link}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpened(false)}
+                    style={{
+                      backgroundColor:
+                        pathname === item.href ? "#e0e0e0" : "transparent",
+                    }}
+                  >
+                    {item.label}
+                  </Menu.Item>
+                ))}
+
+                <Menu.Item
+                  leftSection={<IconLogout size={16} />}
+                  onClick={() => {
+                    SignOut();
+                    setMobileMenuOpened(false);
+                  }}
+                >
+                  Logout
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Flex>
+        </Container>
       </AppShell.Header>
 
       <AppShell.Main
         style={{
-          background: "#ffff",
+          background: "#ffffff",
         }}
       >
         {children}
