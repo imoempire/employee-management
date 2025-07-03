@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Group, Progress, Text } from "@mantine/core";
+import { Card, Group, Progress, Skeleton, Text } from "@mantine/core";
 import { IconFolder } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import { FolderResponse } from "./types";
@@ -10,10 +10,9 @@ export default function Drones() {
   const pathname = usePathname();
 
   // DATA API
-  const { data: dronesFolder } = useCustomGet<FolderResponse>({
+  const { data: dronesFolder, isLoading } = useCustomGet<FolderResponse>({
     url: `https://erp.mawuena.com/api/admin/consumer-folder/list`,
   });
-
 
   const Data = dronesFolder?.folders || [];
 
@@ -28,12 +27,23 @@ export default function Drones() {
         </Text>
       </div> */}
       <div className="mt-10">
+        {isLoading && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array(4)
+              .fill(null)
+              .map((_, i) => {
+                return <Skeleton height={200} key={i} />;
+              })}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Data?.map((item, index) => {
             return (
               <Card
                 style={{ cursor: "pointer" }}
-                onClick={() => router.push(`${pathname}/dronefolder/${item.id}`)}
+                onClick={() =>
+                  router.push(`${pathname}/dronefolder/${item.id}`)
+                }
                 key={index}
                 shadow="sm"
                 radius="md"

@@ -1,14 +1,25 @@
 "use client";
 import Loading from "@/components/loading";
 import { Center, SegmentedControl, Select, Text, Title } from "@mantine/core";
-import React, { JSX, Suspense, useState } from "react";
+import React, { JSX, Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { consumerSegmentValues } from "../_components/types";
 import Drones from "./_components/Drones";
 import Handheld from "./_components/Handheld";
 import Gimbal from "./_components/Gimbal";
 
 export default function Page() {
-  const [value, setValue] = useState<consumerSegmentValues>("Drones");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Initialize from URL params or default to "Drones"
+  const [value, setValue] = useState<consumerSegmentValues>(() => {
+    const tabFromUrl = searchParams.get("tab") as consumerSegmentValues;
+    return tabFromUrl &&
+      ["Drones", "Gimbal", "Handheld Cams & Mic"].includes(tabFromUrl)
+      ? tabFromUrl
+      : "Drones";
+  });
 
   const Tabs: Record<consumerSegmentValues, JSX.Element> = {
     Drones: <Drones />,
@@ -49,6 +60,27 @@ export default function Page() {
     },
   ];
 
+  // Update URL when tab changes
+  const handleTabChange = (newValue: consumerSegmentValues) => {
+    setValue(newValue);
+
+    // Update URL without page reload
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("tab", newValue);
+    router.replace(newUrl.toString());
+  };
+
+  // Sync with URL changes (browser back/forward)
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab") as consumerSegmentValues;
+    if (
+      tabFromUrl &&
+      ["Drones", "Gimbal", "Handheld Cams & Mic"].includes(tabFromUrl)
+    ) {
+      setValue(tabFromUrl);
+    }
+  }, [searchParams]);
+
   return (
     <Suspense fallback={<Loading />}>
       <div className="min-h-screen">
@@ -68,7 +100,7 @@ export default function Page() {
           <div className="block sm:hidden mt-6">
             <Select
               value={value}
-              onChange={(val) => setValue(val as consumerSegmentValues)}
+              onChange={(val) => handleTabChange(val as consumerSegmentValues)}
               data={segmentData.map((item) => ({
                 value: item.value,
                 label: item.value,
@@ -81,7 +113,7 @@ export default function Page() {
           <div className="hidden sm:block mt-10">
             <SegmentedControl
               value={value}
-              onChange={(val) => setValue(val as consumerSegmentValues)}
+              onChange={(val) => handleTabChange(val as consumerSegmentValues)}
               size="md"
               radius={"sm"}
               withItemsBorders={false}

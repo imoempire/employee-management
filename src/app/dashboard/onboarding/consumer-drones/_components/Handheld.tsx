@@ -25,6 +25,15 @@ export default function Handheld() {
         </Text>
       </div> */}
       <div className="mt-10">
+        {/* {isLoading && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array(4)
+              .fill(null)
+              .map((_, i) => {
+                return <Skeleton height={200} key={i} />;
+              })}
+          </div>
+        )} */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Data.map((item, index) => {
             return (
