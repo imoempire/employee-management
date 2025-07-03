@@ -47,7 +47,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const navLinks = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Onboarding", href: "/dashboard/onboarding", isDropdown: true },
-    { label: "Document Management", href: "/dashboard/document-management" },
+    // { label: "Document Management", href: "/dashboard/document-management" },
     { label: "Training", href: "/dashboard/training" },
     { label: "Support", href: "/dashboard/support" },
   ];
