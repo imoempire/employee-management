@@ -18,6 +18,7 @@ export type Video = {
   video_url: string;
   thumbnail_url: string;
   duration: string;
+  created_at?: string;
 };
 
 export type FolderVideoResponse = {
@@ -73,5 +74,30 @@ export interface ConsumerVideosWatchedResponse {
     thumbnail_url: string;
     duration: string;
     viewed_at: string;
+  }>;
+}
+
+export interface HandHeldFolderListResponse {
+  message: string;
+  folders: Array<{
+    id: number;
+    name: string;
+    description: string;
+    video_count: string;
+    created_at: string;
+  }>;
+}
+
+export interface HandheldFolderVideosResponse {
+  message: string;
+  folder: string;
+  videos: Array<{
+    id: number;
+    topic: string;
+    description: string;
+    duration: string;
+    video_url: string;
+    thumbnail_url: string;
+    created_at: string;
   }>;
 }

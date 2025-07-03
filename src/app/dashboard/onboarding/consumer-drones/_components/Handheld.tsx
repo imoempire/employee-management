@@ -1,18 +1,21 @@
 import React from "react";
-import { Card, Group, Progress, Text } from "@mantine/core";
+import { Card, Group, Progress, Skeleton, Text } from "@mantine/core";
 import { IconFolder } from "@tabler/icons-react";
+import { HandHeldFolderListResponse } from "./types";
+import { useCustomGet } from "@/Hooks/useCustomGet";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Handheld() {
-  const Data = [
-    { name: "Handheld Basics", video: "2 videos available" },
-    { name: "Audio Setup", video: "2 videos available" },
-    { name: "Lighting", video: "2 videos available" },
-    { name: "Recording Techniques", video: "2 videos available" },
-    {
-      name: "Post Production",
-      video: "2 videos available",
-    },
-  ];
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // DATA API
+  const { data: handheldfolders, isLoading } =
+    useCustomGet<HandHeldFolderListResponse>({
+      url: `https://erp.mawuena.com/api/admin/handheld-folder/list`,
+    });
+
+  const Data = handheldfolders?.folders || [];
 
   return (
     <div>
@@ -25,7 +28,7 @@ export default function Handheld() {
         </Text>
       </div> */}
       <div className="mt-10">
-        {/* {isLoading && (
+        {isLoading && (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array(4)
               .fill(null)
@@ -33,15 +36,25 @@ export default function Handheld() {
                 return <Skeleton height={200} key={i} />;
               })}
           </div>
-        )} */}
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Data.map((item, index) => {
             return (
-              <Card key={index} shadow="sm" radius="md" withBorder pb={60}>
+              <Card
+                onClick={() =>
+                  router.push(`${pathname}/handheld/${item.id}`)
+                }
+                style={{ cursor: "pointer" }}
+                key={index}
+                shadow="sm"
+                radius="md"
+                withBorder
+                pb={60}
+              >
                 <Group gap={6}>
                   <IconFolder stroke={1.5} size={60} />
                   <Text fz="20" fw={700}>
-                    {item?.name}
+                    {item.name}
                   </Text>
                 </Group>
 
@@ -50,7 +63,7 @@ export default function Handheld() {
                 </div>
 
                 <Text mt={"md"} fz="20" fw={500} c="#64748B">
-                  {item?.video}
+                {item?.video_count} video available
                 </Text>
               </Card>
             );
