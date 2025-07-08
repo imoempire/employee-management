@@ -1,13 +1,31 @@
 "use client";
-import { Avatar, Button, Group, Indicator, Paper, Switch } from "@mantine/core";
+import {
+  Avatar,
+  Button,
+  Group,
+  Indicator,
+  Modal,
+  Paper,
+  Stack,
+  Switch,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import React, { Suspense, useRef, useState } from "react";
 import { TextField } from "./_components/TextField";
 // import { SelectField } from "./_components/SelectField";
 import SettingCard from "./_components/Card";
 import Loading from "@/components/loading";
-import { IconAdjustmentsHorizontal, IconCamera } from "@tabler/icons-react";
+import {
+  IconAdjustmentsHorizontal,
+  IconCamera,
+  IconX,
+} from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 export default function Page() {
+  const [opened, { open, close }] = useDisclosure(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
 
@@ -45,14 +63,14 @@ export default function Page() {
             <div className="flex flex-col gap-y-3.5">
               <div className="flex justify-center ">
                 <Indicator
-                  inline
+                  // inline
                   size={35}
                   offset={13}
                   position="bottom-end"
                   color="dark"
                   label={<IconCamera size={20} />}
                   onClick={handleIndicatorClick}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", zIndex: 1 }}
                 >
                   <Avatar
                     size="110"
@@ -93,7 +111,11 @@ export default function Page() {
               <SettingCard
                 title="Change Password"
                 subtitle="Update your account password"
-                OptionsComponent={<Button variant="default">Change</Button>}
+                OptionsComponent={
+                  <Button onClick={open} variant="default">
+                    Change
+                  </Button>
+                }
               />
               {/* <SelectField
                 label="Language"
@@ -154,6 +176,49 @@ export default function Page() {
             </div>
           </Paper> */}
         </div>
+        <Modal
+          style={{ zIndex: 100 }}
+          opened={opened}
+          onClose={close}
+          withCloseButton={false}
+          title={
+            <div className="w-full flex flex-col gap-0.5">
+              <div className="flex justify-between">
+                <Text fs={"20"} fz={"20px"} fw={"bold"}>
+                  Change Password
+                </Text>
+                <IconX />
+              </div>
+              <Text fs={"40"} lh={"14px"} fz={"15px"} mb={"md"} c={"#64748B"}>
+                Enter your current password and choose a new password.
+              </Text>
+            </div>
+          }
+          centered
+        >
+          <div className="space-y-4">
+            <TextInput
+              label="Current Password"
+              placeholder="Enter current Password"
+              required
+            />
+            <TextInput
+              label="New Password"
+              placeholder="Enter new Password"
+            />
+            <TextInput
+              label="Confirm New Password"
+              placeholder="Enter confirm New Password"
+            />
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button color="dark" variant="outline" onClick={close}>
+                Cancel
+              </Button>
+              <Button color="dark">Update Password</Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </Suspense>
   );
