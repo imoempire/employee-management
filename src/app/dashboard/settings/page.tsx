@@ -1,15 +1,70 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Avatar, Button, Group, Indicator, Paper, Switch } from "@mantine/core";
-import React, { Suspense, useRef, useState } from "react";
+import {
+  Avatar,
+  Button,
+  Group,
+  Indicator,
+  Modal,
+  Paper,
+  Switch,
+  Text,
+  TextInput,
+} from "@mantine/core";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { TextField } from "./_components/TextField";
-// import { SelectField } from "./_components/SelectField";
 import SettingCard from "./_components/Card";
 import Loading from "@/components/loading";
-import { IconAdjustmentsHorizontal, IconCamera } from "@tabler/icons-react";
+import {
+  IconAdjustmentsHorizontal,
+  IconCamera,
+  IconX,
+} from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { useCustomPost } from "@/Hooks/useCustomPost";
+import { showNotification } from "@mantine/notifications";
+import { API_ENDPOINT } from "@/service/api/endpoints";
+import { useSession } from "next-auth/react";
+import { useCustomGet } from "@/Hooks/useCustomGet";
+import { useForm } from "@mantine/form";
+import { SettingProfileResponse } from "./_components/types";
 
 export default function Page() {
+  const { data } = useSession();
+  const [opened, { open, close }] = useDisclosure(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
+
+  const { data: profileDetails, refetch } =
+    useCustomGet<SettingProfileResponse>({
+      url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/details`,
+    });
+
+  // Define the mutation for updating the profile picture
+  const { mutate, isError, isSuccess, isPending } = useCustomPost<{
+    message: string;
+    profile_picture_url: string;
+  }>({
+    url: `https://erp.mawuena.com/api/employee/${data?.user?.id}/update-profile-picture`,
+    onSuccess: (data) => {
+      showNotification({
+        title: "Success",
+        message: data.message || "Profile image updated successfully!",
+        color: "green",
+      });
+      if (data?.profile_picture_url) {
+        refetch();
+      }
+    },
+    onError: (error: any) => {
+      // console.error("Error updating profile picture:", error);
+      showNotification({
+        title: "Error",
+        message: error?.message || "Failed to delete profile image",
+        color: "red",
+      });
+    },
+  });
 
   const handleIndicatorClick = () => {
     fileInputRef.current?.click();
@@ -20,8 +75,105 @@ export default function Page() {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setAvatarImage(imageUrl);
-      console.log("Selected file:", file);
+
+      // Prepare FormData for the mutation
+      const formData = new FormData();
+      formData.append("profile_picture", file);
+
+      // Trigger the mutation
+      mutate(formData);
     }
+  };
+
+  const form = useForm({
+    initialValues: {
+      username: "",
+    },
+    validate: {
+      username: (value) => (value ? null : "User name is required"),
+    },
+  });
+
+  useEffect(() => {
+    if (!profileDetails) return;
+    const person = profileDetails.employee;
+    setAvatarImage(person.profile_picture);
+    form.setValues({
+      username: person.username || "",
+    });
+  }, [profileDetails]);
+
+  const { mutate: userMutate, isPending: userPending } = useCustomPost<{
+    message: string;
+  }>({
+    url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/update-username`,
+    onSuccess: (data) => {
+      showNotification({
+        title: "Success",
+        message: data.message || "Profile updated",
+        color: "green",
+      });
+      refetch();
+    },
+    onError: (error: any) => {
+      // console.error("Error updating profile picture:", error);
+      showNotification({
+        title: "Error",
+        message: error?.message || "Failed to update profile",
+        color: "red",
+      });
+    },
+  });
+
+  const handleUserUpdate = (values: { username: string }) => {
+    userMutate(values);
+  };
+
+  const form2 = useForm({
+    initialValues: {
+      old_password: "",
+      new_password: "",
+      new_password_confirmation: "",
+    },
+    validate: {
+      old_password: (value) => (value ? null : "Old password is required"),
+      new_password: (value) => (value ? null : "New password is required"),
+      new_password_confirmation: (value, values) =>
+        value !== values.new_password ? "Passwords do not match" : null,
+    },
+  });
+
+  const { mutate: passwordMutate, isPending: passwordPending } =
+    useCustomPost<any>({
+      url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/change-password`,
+      onSuccess: (data) => {
+        showNotification({
+          title: "Success",
+          message: data.message || "Password updated",
+          color: "green",
+        });
+        close();
+      },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to update password";
+
+        showNotification({
+          title: "Error",
+          message: errorMessage,
+          color: "red",
+        });
+      },
+    });
+
+  const handleChangePassword = (values: {
+    old_password: string;
+    new_password: string;
+    new_password_confirmation: string;
+  }) => {
+    passwordMutate(values);
   };
 
   return (
@@ -43,16 +195,15 @@ export default function Page() {
           </div>
           <Paper shadow="md" withBorder p={"md"} mb={"xl"}>
             <div className="flex flex-col gap-y-3.5">
-              <div className="flex justify-center ">
+              <div className="flex justify-center">
                 <Indicator
-                  inline
                   size={35}
                   offset={13}
                   position="bottom-end"
                   color="dark"
                   label={<IconCamera size={20} />}
                   onClick={handleIndicatorClick}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", zIndex: 1 }}
                 >
                   <Avatar
                     size="110"
@@ -70,89 +221,100 @@ export default function Page() {
                   onChange={handleFileChange}
                 />
               </div>
-              <div>
-                <p className="text-md text-[#64748b] font-medium text-center">
-                  Click the camera icon to change your profile picture
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-y-6 mt-8">
-              <TextField
-                label="Display Name"
-                placeholder="Enter your name"
-                caption="This is how your name will appear in the employee portal"
-                styles={{
-                  label: {
-                    fontSize: 16,
-                    fontWeight: "600",
-                  },
-                }}
-                required
-                onChange={(e) => console.log(e.target.value)}
-              />
-              <SettingCard
-                title="Change Password"
-                subtitle="Update your account password"
-                OptionsComponent={<Button variant="default">Change</Button>}
-              />
-              {/* <SelectField
-                label="Language"
-                placeholder="English"
-                caption="Select your preferred language for the portal"
-                data={["English", "Spanish", "French"]}
-                required
-                onChange={(value) => console.log(value)}
-              /> */}
-              {/* <SelectField
-              label="Theme"
-              placeholder="System"
-              caption="Choose your preferred visual theme"
-              data={["System", "Dark", "Light"]}
-              required
-              onChange={(value) => console.log(value)}
-            /> */}
-              <SettingCard
-                title="Email Notifications"
-                subtitle="Receive training updates and announcements via email"
-                OptionsComponent={
-                  <Switch defaultChecked size="md" color="dark" />
-                }
-              />
-              {/* <SettingCard
-                title="SMS Notifications"
-                subtitle="Receive text messages for urgent notifications"
-                OptionsComponent={<Switch size="md" color="dark" />}
-              /> */}
-            </div>
-
-            <Group justify="right" mt={"50"}>
-              {/* <Button variant="default">Reset to Defaults</Button> */}
-              {/* <Button variant="default">Back to Profile</Button> */}
-              <Button variant="filled" color="dark">
-                Save Changes
-              </Button>
-            </Group>
-          </Paper>
-          {/* <Paper shadow="md" withBorder p={"md"}>
-            <div>
-              <h1 className="text-2xl font-bold">Privacy & Security</h1>
-              <p className="text-md text-[#64748B]">
-                Manage your account security settings
+              <p className="text-md text-[#64748b] font-medium text-center">
+                Click the camera icon to change your profile picture
               </p>
+              {isPending && <p>Uploading...</p>}
+              {isError && <p>Error uploading profile picture.</p>}
+              {isSuccess && <p>Profile picture updated successfully!</p>}
             </div>
-            <div className="flex flex-col gap-y-6 mt-8">
-              <SettingCard
-                title="Change Password"
-                subtitle="Update your account password"
-                OptionsComponent={<Button variant="default">Change</Button>}
-              />
-              <SettingCard
-                title="Two-Factor Authentication"
-                subtitle="Add an extra layer of security to your account"
-                OptionsComponent={<Button variant="default">Change</Button>}
-              />
-            </div>
-          </Paper> */}
+            <form onSubmit={form.onSubmit(handleUserUpdate)}>
+              <div className="flex flex-col gap-y-6 mt-8">
+                <TextField
+                  label="Display Name"
+                  placeholder="Enter your name"
+                  caption="This is how your name will appear in the employee portal"
+                  styles={{ label: { fontSize: 16, fontWeight: "600" } }}
+                  // required
+                  {...form.getInputProps("username")}
+                />
+                <SettingCard
+                  title="Change Password"
+                  subtitle="Update your account password"
+                  OptionsComponent={
+                    <Button onClick={open} variant="default">
+                      Change
+                    </Button>
+                  }
+                />
+                <SettingCard
+                  title="Email Notifications"
+                  subtitle="Receive training updates and announcements via email"
+                  OptionsComponent={
+                    <Switch defaultChecked size="md" color="dark" />
+                  }
+                />
+              </div>
+              <Group justify="right" mt={"50"}>
+                <Button
+                  loading={userPending}
+                  type="submit"
+                  variant="filled"
+                  color="dark"
+                >
+                  Save Changes
+                </Button>
+              </Group>
+            </form>
+          </Paper>
+          <Modal
+            style={{ zIndex: 100 }}
+            opened={opened}
+            onClose={close}
+            withCloseButton={false}
+            title={
+              <div className="w-full flex flex-col gap-0.5">
+                <div className="flex justify-between">
+                  <Text fs={"20"} fz={"20px"} fw={"bold"}>
+                    Change Password
+                  </Text>
+                  <IconX onClick={close} />
+                </div>
+                <Text fs={"40"} lh={"14px"} fz={"15px"} mb={"md"} c={"#64748B"}>
+                  Enter your current password and choose a new password.
+                </Text>
+              </div>
+            }
+            centered
+          >
+            <form onSubmit={form2.onSubmit(handleChangePassword)}>
+              <div className="space-y-4">
+                <TextInput
+                  label="Current Password"
+                  placeholder="Enter current Password"
+                  {...form2.getInputProps("old_password")}
+                />
+                <TextInput
+                  label="New Password"
+                  placeholder="Enter new Password"
+                  {...form2.getInputProps("new_password")}
+                />
+                <TextInput
+                  label="Confirm New Password"
+                  placeholder="Enter confirm New Password"
+                  {...form2.getInputProps("new_password_confirmation")}
+                />
+                <div className="flex justify-end gap-2 mt-6">
+                  <Button color="dark" variant="outline" onClick={close}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" loading={passwordPending} color="dark">
+                    Update Password
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </Modal>
         </div>
       </div>
     </Suspense>
