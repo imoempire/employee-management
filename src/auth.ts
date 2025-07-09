@@ -55,7 +55,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return !!auth;
     },
     jwt: async ({ token, user, trigger, session }) => {
-      console.log("JWT Callback:", { trigger, session, token });
 
       if (trigger === "update" && session?.user) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -214,8 +214,6 @@ export default function Page() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {videos?.map((video) => {
             const isCompleted = isVideoCompleted(video?.id);
-            console.log(isCompleted, video.id);
-
             return (
               <Card key={video.id} shadow="sm" px="lg" radius="md" withBorder>
                 <Card.Section className="relative group cursor-pointer">
