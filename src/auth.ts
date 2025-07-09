@@ -54,9 +54,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized: async ({ auth }) => {
       return !!auth;
     },
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user, trigger, session }) => {
+      console.log("JWT Callback:", { trigger, session, token });
+
+      if (trigger === "update" && session?.user) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        token.user = { ...token.user, ...session.user }; // Merge session.user into token.user
+        return token;
+      }
       if (user) {
-        token.user = user as Employee;
+        token.user = user as Employee; // Initial login
       }
       return token;
     },

@@ -26,11 +26,19 @@ import {
 import { getSession, signOut, useSession } from "next-auth/react";
 import { redirect, usePathname } from "next/navigation";
 import Loading from "@/components/loading";
+import { useCustomGet } from "@/Hooks/useCustomGet";
+import { API_ENDPOINT } from "@/service/api/endpoints";
+import { SettingProfileResponse } from "./settings/_components/types";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const [mobileMenuOpened, setMobileMenuOpened] = useState(false);
   const pathname = usePathname();
+
+  //API DATA
+  const { data: MyProfile } = useCustomGet<SettingProfileResponse>({
+    url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/details`,
+  });
 
   useEffect(() => {
     getSession();
@@ -278,7 +286,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Menu>
                 <Menu.Target>
                   <Group gap={4} style={{ cursor: "pointer" }}>
-                    <Avatar size="sm" name={session.user.username} />
+                    <Avatar
+                      size="sm"
+                      src={MyProfile?.employee.profile_picture}
+                      name={session.user.username}
+                    />
                     <IconChevronDown color="#000000" size={14} />
                   </Group>
                 </Menu.Target>
