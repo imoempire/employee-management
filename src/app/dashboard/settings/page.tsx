@@ -28,17 +28,20 @@ import { useSession } from "next-auth/react";
 import { useCustomGet } from "@/Hooks/useCustomGet";
 import { useForm } from "@mantine/form";
 import { SettingProfileResponse } from "./_components/types";
+import { Employee } from "@/types/appTypes";
 
 export default function Page() {
-  const { data } = useSession();
+  const { data: session, update } = useSession();
   const [opened, { open, close }] = useDisclosure(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
 
+  // console.log(session?.user, 'data');
+
   const { data: profileDetails, refetch } =
     useCustomGet<SettingProfileResponse>({
-      url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/details`,
-      enabled: !!data?.user?.id,
+      url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/details`,
+      enabled: !!session?.user?.id,
     });
 
   // Define the mutation for updating the profile picture
@@ -46,7 +49,7 @@ export default function Page() {
     message: string;
     profile_picture_url: string;
   }>({
-    url: `https://erp.mawuena.com/api/employee/${data?.user?.id}/update-profile-picture`,
+    url: `https://erp.mawuena.com/api/employee/${session?.user?.id}/update-profile-picture`,
     onSuccess: (data) => {
       showNotification({
         title: "Success",
@@ -103,16 +106,38 @@ export default function Page() {
     });
   }, [profileDetails]);
 
+  const SaveSessonUpdate = async ({
+    value,
+  }: {
+    field?: keyof Employee;
+    value: string;
+  }) => {
+    const newSession = {
+      ...session,
+      user: {
+        ...session?.user,
+        username: value,
+      },
+    };
+
+    console.log(newSession, "New Session");
+    
+
+    await update(newSession);
+  };
+
   const { mutate: userMutate, isPending: userPending } = useCustomPost<{
     message: string;
+    username: string;
   }>({
-    url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/update-username`,
+    url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/update-username`,
     onSuccess: (data) => {
       showNotification({
         title: "Success",
         message: data.message || "Profile updated",
         color: "green",
       });
+      SaveSessonUpdate({ field: "username", value: data?.username });
       refetch();
     },
     onError: (error: any) => {
@@ -145,7 +170,7 @@ export default function Page() {
 
   const { mutate: passwordMutate, isPending: passwordPending } =
     useCustomPost<any>({
-      url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/change-password`,
+      url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/change-password`,
       onSuccess: (data) => {
         showNotification({
           title: "Success",
