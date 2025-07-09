@@ -15,26 +15,28 @@ export function useCustomPost<TData = unknown, TError = unknown>(
 
   return useMutation({
     mutationFn: async (params: any) => {
-      console.log("Request payload:", params); // Debug payload
       try {
-        const config = params instanceof FormData
-          ? { headers: { "Content-Type": "multipart/form-data" }, maxRedirects: 0 }
-          : { maxRedirects: 0 };
-        const response = await api.post<TData>(url, params, config);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        return response.data;
+        const config =
+          params instanceof FormData
+            ? {
+                headers: { "Content-Type": "multipart/form-data" },
+                maxRedirects: 0,
+              }
+            : { maxRedirects: 0 };
+        const data = await api.post<TData>(url, params, config);
+        return data;
       } catch (error) {
-        // console.log(error, 'error');
-        
         if (axios.isAxiosError(error)) {
-          console.log(error.response?.status, 'error.response?.status');
-          
           if (error.response?.status === 401) {
             throw new Error("Unauthorized: Please log in again");
           }
-          if (error.response?.status === 301 || error.response?.status === 302) {
-            throw new Error(`Redirected to: ${error.response.headers.location}`);
+          if (
+            error.response?.status === 301 ||
+            error.response?.status === 302
+          ) {
+            throw new Error(
+              `Redirected to: ${error.response.headers.location}`
+            );
           }
         }
         throw error;

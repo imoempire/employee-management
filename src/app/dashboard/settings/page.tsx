@@ -38,6 +38,7 @@ export default function Page() {
   const { data: profileDetails, refetch } =
     useCustomGet<SettingProfileResponse>({
       url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/details`,
+      enabled: !!data?.user?.id,
     });
 
   // Define the mutation for updating the profile picture
@@ -57,7 +58,6 @@ export default function Page() {
       }
     },
     onError: (error: any) => {
-      // console.error("Error updating profile picture:", error);
       showNotification({
         title: "Error",
         message: error?.message || "Failed to delete profile image",
@@ -116,7 +116,7 @@ export default function Page() {
       refetch();
     },
     onError: (error: any) => {
-      // console.error("Error updating profile picture:", error);
+      console.log("Error updating profile picture:", error);
       showNotification({
         title: "Error",
         message: error?.message || "Failed to update profile",
