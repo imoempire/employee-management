@@ -17,8 +17,6 @@ export const useUpdateSessionField = () => {
       console.warn(`Field "${field}" is not allowed to be updated in the session.`);
       return;
     }
-console.log("Heloo");
-
     await update({
       user: {
         [field]: value,

@@ -25,15 +25,15 @@ import {
 } from "@tabler/icons-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { showNotification } from "@mantine/notifications";
+import { useCustomPost } from "@/Hooks/useCustomPost";
+import { useSession } from "next-auth/react";
 import {
   ConsumerVideosWatchedResponse,
   FolderVideoResponse,
   MarkWatchedResponse,
   Video,
-} from "../../_components/types";
-import { showNotification } from "@mantine/notifications";
-import { useCustomPost } from "@/Hooks/useCustomPost";
-import { useSession } from "next-auth/react";
+} from "../../../consumer-drones/_components/types";
 
 interface ApiError {
   data?: {
@@ -44,10 +44,8 @@ interface ApiError {
 
 export default function Page() {
   const { data } = useSession();
-
-  const params = useParams<{ id: string }>();
-
   const router = useRouter();
+  const params = useParams<{ id: string }>();
 
   // Modal state
   const [modalOpened, setModalOpened] = useState(false);
@@ -94,7 +92,7 @@ export default function Page() {
     refetch,
     isLoading,
   } = useCustomGet<FolderVideoResponse>({
-    url: `https://erp.mawuena.com/api/admin/consumer-folder/${params.id}/videos`,
+    url: `https://erp.mawuena.com/api/admin/agric-folder/${params.id}/videos`,
   });
 
   // DATA API
@@ -139,7 +137,6 @@ export default function Page() {
       });
     },
     onError: (error: ApiError) => {
-      console.error("Failed to mark video as watched:", error);
       showNotification({
         title: "Error",
         message: error?.data?.message || "Something went wrong!",
@@ -192,7 +189,7 @@ export default function Page() {
           <div className="flex gap-0 flex-col justify-center items-start sm:flex-row sm:justify-between sm:items-center">
             <div className="order-last sm:order-first">
               <Title order={2} c={"#1e2939"}>
-                {folderVideos?.folder || "N/A"}
+                {folderVideos?.folder_name || "N/A"}
               </Title>
               <Text size="lg" c="#64748b">
                 {videos?.length || 0} videos in this folder

@@ -125,7 +125,6 @@ export default function OnboardingVideos({
         ? `https://erp.mawuena.com/api/employee/${data.user.id}/onboarding-video/${currentVideoId}/watched`
         : ``,
     onSuccess: (data: MarkAsWatchedResponse) => {
-      console.log("Video marked as watched:", data);
       refetch1();
       refetch2();
       showNotification({

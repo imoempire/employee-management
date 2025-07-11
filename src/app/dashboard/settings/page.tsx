@@ -36,8 +36,6 @@ export default function Page() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
 
-  // console.log(session?.user, 'data');
-
   const { data: profileDetails, refetch } =
     useCustomGet<SettingProfileResponse>({
       url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/details`,
@@ -120,9 +118,6 @@ export default function Page() {
       },
     };
 
-    console.log(newSession, "New Session");
-    
-
     await update(newSession);
   };
 
@@ -141,7 +136,6 @@ export default function Page() {
       refetch();
     },
     onError: (error: any) => {
-      console.log("Error updating profile picture:", error);
       showNotification({
         title: "Error",
         message: error?.message || "Failed to update profile",

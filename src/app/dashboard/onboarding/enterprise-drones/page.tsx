@@ -19,7 +19,6 @@ export default function Page() {
   const [value, setValue] = useState<droneSegmentValues>("Onboarding Videos");
   const [completed, setCompleted] = useState<number>(0);
   const [NumberVideos, setNumberVideos] = useState<number>(0);
-  // console.log(NumberVideos, "NumberVideos");
 
   // const NextSegement = (value: dronNextSegementValue) => {
   //   // if (!value) {

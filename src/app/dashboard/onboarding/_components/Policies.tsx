@@ -180,7 +180,6 @@ export default function CompanyPolicies({
   const POST_ACTION = useCustomPost<any>({
     url: `${API_ENDPOINT.EMPLOYEE}/${data?.user?.id}/accept/company_profile`,
     onSuccess: (data: any) => {
-      console.log(data, "DATA DAtA");
       NextSegement("Organizational Structure");
       showNotification({
         title: "Success",
