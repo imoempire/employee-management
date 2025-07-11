@@ -48,3 +48,9 @@ export interface PolicesResponse {
   message: string;
   documents: PolicyDocument[];
 }
+
+export type agricSegmentValues =
+  | "Agricultural Drones"
+  | "Other Onboarding Materials";
+
+export type agricNextSegementValue = agricSegmentValues | null;

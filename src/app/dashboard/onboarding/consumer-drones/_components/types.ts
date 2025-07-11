@@ -24,6 +24,7 @@ export type Video = {
 export type FolderVideoResponse = {
   message: string;
   folder: string;
+  folder_name?: string;
   videos: Video[];
 };
 
