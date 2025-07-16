@@ -131,7 +131,7 @@ const PolicyCard = ({
       onClick={onViewPdf}
     >
       <div className="flex gap-x-2.5 items-center">
-        {PoliciesIcons[item?.title?.toLowerCase()]}
+        {PoliciesIcons[item?.title?.toLowerCase()] || <IconFileText />}
         <Text>{item?.title}</Text>
       </div>
     </Paper>
