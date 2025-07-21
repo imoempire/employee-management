@@ -29,7 +29,6 @@ import { showNotification } from "@mantine/notifications";
 import { useCustomPost } from "@/Hooks/useCustomPost";
 import { useSession } from "next-auth/react";
 import {
-  ConsumerVideosWatchedResponse,
   FolderVideoResponse,
   MarkWatchedResponse,
   Video,
@@ -96,10 +95,7 @@ export default function Page() {
   });
 
   // DATA API
-  const { data: watchedVideos, refetch: refetch1 } =
-    useCustomGet<ConsumerVideosWatchedResponse>({
-      url: `https://erp.mawuena.com/api/employee/${data?.user.id}/consumer-videos-watched`,
-    });
+  const watchedVideos: { videos: any[] } = { videos: [] };
 
   // Mock array for videos
   const videos = folderVideos?.videos;
@@ -127,7 +123,7 @@ export default function Page() {
         : ``,
     onSuccess: (data: MarkWatchedResponse) => {
       refetch();
-      refetch1();
+      // refetch1();
       showNotification({
         title: "Success",
         message: data?.message || "Video marked as watched!",
