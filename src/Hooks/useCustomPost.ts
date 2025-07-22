@@ -5,7 +5,7 @@ import axios from "axios";
 
 interface CustomPostOptions<TData, TError>
   extends Omit<UseMutationOptions<TData, TError, any>, "mutationFn"> {
-  url: string;
+  url: string | null | undefined;
 }
 
 export function useCustomPost<TData = unknown, TError = unknown>(
@@ -15,6 +15,11 @@ export function useCustomPost<TData = unknown, TError = unknown>(
 
   return useMutation({
     mutationFn: async (params: any) => {
+      // Check if URL is null, undefined, or empty string
+      if (!url || url.trim() === "") {
+        throw new Error("Invalid URL: URL cannot be null, undefined, or empty");
+      }
+
       try {
         const config =
           params instanceof FormData
