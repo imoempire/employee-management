@@ -262,7 +262,7 @@ export default function Page() {
                     <Button
                       leftSection={
                         isCompleted ? (
-                          <Image src={"/icons8-checkmark-96.png"} h={20} />
+                          <Image src={"/icons8-checkmark-96.png"} h={20} alt="check" />
                         ) : (
                           " 👍"
                         )

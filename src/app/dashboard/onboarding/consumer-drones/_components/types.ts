@@ -102,3 +102,29 @@ export interface HandheldFolderVideosResponse {
     created_at: string;
   }>;
 }
+
+export interface WatchedAgricVideo {
+  video_id: number;
+  topic: string;
+  description: string;
+  duration: string;
+  watched_seconds: string;
+  percentage: number;
+  video_url: string;
+  thumbnail_url: string;
+  last_updated: string;
+}
+
+export interface WatchedAgricVideoResponse {
+  message: string;
+  videos: WatchedAgricVideo[];
+}
+
+export interface VideoProgressResponse {
+  message: string;
+  progress: {
+    watched_seconds: number;
+    video_duration: number;
+    percentages: number;
+  };
+}

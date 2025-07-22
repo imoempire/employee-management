@@ -38,6 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   //API DATA
   const { data: MyProfile } = useCustomGet<SettingProfileResponse>({
     url: `${API_ENDPOINT.EMPLOYEE}/${session?.user?.id}/details`,
+    enabled: !!session?.user?.id,
   });
 
   useEffect(() => {
