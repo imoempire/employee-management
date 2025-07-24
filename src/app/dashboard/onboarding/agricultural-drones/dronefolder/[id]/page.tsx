@@ -130,16 +130,33 @@ export default function Page() {
           : null,
     });
 
-  // Mock array for videos
-
   // Features
   const [videos, setVideos] = useState<Video[]>();
   const [isMarkingWatched, setIsMarkingWatched] = useState<boolean>(false);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
 
   useEffect(() => {
-    const videos = folderVideos?.videos;
-    setVideos(videos);
+    if (folderVideos?.videos) {
+      // Map through folderVideos and merge with watchedVideos data
+      const mergedVideos: Video[] = folderVideos.videos.map((video) => {
+        // Find matching watched video by id
+        const watchedVideo = watchedVideos?.videos?.find(
+          (wv) => wv.video_id === video.id
+        );
+
+        // Return video with watched_seconds and percentage if available, else defaults
+        return {
+          ...video,
+          watched_seconds: watchedVideo
+            ? parseInt(watchedVideo.watched_seconds)
+            : 0,
+          percentage: watchedVideo ? watchedVideo.percentage : 0,
+        };
+      });
+
+      setVideos(mergedVideos);
+    }
+
     return () => {};
   }, [folderVideos, watchedVideos]);
 
@@ -151,7 +168,6 @@ export default function Page() {
       refetchVideoProgress();
     },
     onError: (error: ApiError) => {
-      console.error("Progress update failed:", error);
       setIsProgressUpdating(false);
       showNotification({
         title: "Error",
@@ -286,7 +302,7 @@ export default function Page() {
         (watchedVideo) =>
           watchedVideo.video_id === videoId &&
           watchedVideo.last_updated &&
-          watchedVideo.percentage >= 99
+          watchedVideo.percentage >= 100
       ) || false
     );
   };
@@ -330,9 +346,9 @@ export default function Page() {
               <Card key={video.id} shadow="sm" px="lg" radius="md" withBorder>
                 <Card.Section className="relative group cursor-pointer">
                   <VideoThumbnail
-                    videoPath={video.video_url}
-                    thumbnailPath={video.thumbnail_url}
-                    alt={video.topic}
+                    videoPath={video?.video_url}
+                    thumbnailPath={video?.thumbnail_url}
+                    alt={video?.topic}
                   />
 
                   <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center opacity-0 group-hover:opacity-60 transition-opacity duration-300">
@@ -354,7 +370,7 @@ export default function Page() {
                 <Group flex={1} justify="space-between">
                   <Group justify="space-between" mt="md" mb="xs">
                     <Text fs="80" fw={700}>
-                      {video.topic}
+                      {video?.topic}
                     </Text>
                   </Group>
 
@@ -362,10 +378,12 @@ export default function Page() {
                     <Group align="center" gap={2}>
                       <IconClock size={20} stroke={1.5} color="#64748B" />
                       <Text size="sm" c="#64748B">
-                        {video.duration}
+                        {video?.duration}
                       </Text>
                     </Group>
+                    <Text>{video?.percentage}%</Text>
                     <Button
+                      display={"none"}
                       leftSection={
                         isCompleted ? (
                           <Image

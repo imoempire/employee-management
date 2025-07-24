@@ -19,6 +19,8 @@ export type Video = {
   thumbnail_url: string;
   duration: string;
   created_at?: string;
+  watched_seconds?: number; 
+  percentage?: number;
 };
 
 export type FolderVideoResponse = {
